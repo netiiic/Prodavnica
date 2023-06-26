@@ -6,12 +6,12 @@ using Prodavnica.Api.Models;
 
 namespace Prodavnica.Api.Repository
 {
-    public class Repository : IRepository
+    public class RepositoryImplemantation : IRepository
     {
         private readonly IMapper _mapper;
         private readonly ProdavnicaDbContext _dbContext;
 
-        public Repository(IMapper mapper, ProdavnicaDbContext dbContext)
+        public RepositoryImplemantation(IMapper mapper, ProdavnicaDbContext dbContext)
         {
             _mapper = mapper;
             _dbContext = dbContext;

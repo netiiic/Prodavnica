@@ -1,7 +1,9 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Prodavnica.Api.Infrastructure;
+using Prodavnica.Api.Interfaces;
 using Prodavnica.Api.Mapping;
+using Prodavnica.Api.Repository;
 
 namespace Prodavnica.Api
 {
@@ -30,6 +32,9 @@ namespace Prodavnica.Api
 
             IMapper mapper = mapperConfig.CreateMapper();
             builder.Services.AddSingleton(mapper);
+
+            // SERVICES
+            builder.Services.AddScoped<IRepository, RepositoryImplemantation>();
 
             var app = builder.Build();
 

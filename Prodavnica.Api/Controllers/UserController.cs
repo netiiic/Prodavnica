@@ -37,6 +37,7 @@ namespace Prodavnica.Api.Controllers
         [HttpPut(Name = "ChangeProfile")]
         public IActionResult ChangeProfile(Guid id, [FromBody] UserDto userDto)
         {
+            userDto.Password = EncodePasswordToBase64(userDto.Password);
             return Ok(_repository.ChangeProfile(id, userDto));
         }
 
