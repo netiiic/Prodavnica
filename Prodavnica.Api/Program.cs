@@ -1,5 +1,7 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Prodavnica.Api.Infrastructure;
+using Prodavnica.Api.Mapping;
 
 namespace Prodavnica.Api
 {
@@ -20,6 +22,14 @@ namespace Prodavnica.Api
             {
                 o.UseSqlServer(builder.Configuration.GetConnectionString("Prodavnica"));
             });
+
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+            builder.Services.AddSingleton(mapper);
 
             var app = builder.Build();
 
