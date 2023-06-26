@@ -51,6 +51,11 @@ namespace Prodavnica.Api.Controllers
             }
 
             UserDto user = _repository.GetUser(loginModel.Username);
+
+            if (user.UserType == Dto.UserType.Seller && user.Verified == false)
+            {
+                return Unauthorized("Admin has not verifed you.");
+            }
             string decPWD = string.Empty;
 
             decPWD = DecodeFrom64(user.Password);
