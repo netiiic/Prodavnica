@@ -52,5 +52,7 @@ namespace Prodavnica.Api.Interfaces
         UserDto GetUser(string username);
 
         bool AuthenticateUser(string username, string password);
+
+        int GetUserType(Guid id);
     }
 }

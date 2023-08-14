@@ -38,7 +38,22 @@ namespace Prodavnica.Api.Controllers
         public IActionResult ChangeProfile(Guid id, [FromBody] UserDto userDto)
         {
             userDto.Password = EncodePasswordToBase64(userDto.Password);
-            return Ok(_repository.ChangeProfile(id, userDto));
+            UserDto user = _repository.ChangeProfile(id, userDto);
+            user.Password = DecodeFrom64(user.Password);
+            return Ok(user);
+        }
+
+        [HttpPut]
+        [Route("GetUser")]
+        public IActionResult GetUser([FromQuery] string username)
+        {
+            if(!_repository.UserExists(username))
+            {
+                return Unauthorized("Non exist");
+            }
+            UserDto user = _repository.GetUser(username);
+            user.Password = DecodeFrom64(user.Password);
+            return Ok(user);
         }
 
         [HttpPost]
@@ -69,6 +84,13 @@ namespace Prodavnica.Api.Controllers
             string token = CreateToken(user.Id.ToString(), user.Username, user.FullName);
 
             return Ok(new { Token = token });
+        }
+
+        [HttpPut]
+        [Route("GetType")]
+        public IActionResult GetUserType(Guid id)
+        {
+            return Ok(_repository.GetUserType(id));
         }
 
         private string CreateToken(string userId, string username, string fullName)

@@ -16,13 +16,15 @@ namespace Prodavnica.Api.Controllers
                 _repository = repository;
             }
 
-            [HttpPut("{id}", Name = "VerifyUser")]
+            [HttpPut]
+            [Route("VerifyUser")]
             public IActionResult VerifyUser(Guid id, bool verify)
             {
                 return Ok(_repository.Verify(id, verify));
             }
 
-            [HttpGet(Name = "GetAllUnverified")]
+            [HttpGet]
+            [Route("GetAllUnverified")]
             public IActionResult GetAllUnverified()
             {
                 return Ok(_repository.GetAllUnverified());

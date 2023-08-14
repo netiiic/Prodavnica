@@ -45,6 +45,8 @@ namespace Prodavnica.Api
                 app.UseSwaggerUI();
             }
 
+            app.UseCors(o => o.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

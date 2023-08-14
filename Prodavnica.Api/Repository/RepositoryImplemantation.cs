@@ -93,5 +93,11 @@ namespace Prodavnica.Api.Repository
         {
             return _dbContext.Users.Any(c => c.Username == username && c.Password == password);
         }
+
+        public int GetUserType(Guid id)
+        {
+            User user = _dbContext.Users.Find(id);
+            return (int)user.UserType;
+        }
     }
 }
