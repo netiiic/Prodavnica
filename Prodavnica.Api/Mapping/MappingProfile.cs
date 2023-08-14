@@ -10,6 +10,7 @@ namespace Prodavnica.Api.Mapping
         {
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<ShoppingItem, ShoppingItemDto>().ReverseMap();
+            CreateMap<Oreder, OrederDto>().ReverseMap();
         }
     }
 }

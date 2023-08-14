@@ -12,8 +12,8 @@ using Prodavnica.Api.Infrastructure;
 namespace Prodavnica.Api.Migrations
 {
     [DbContext(typeof(ProdavnicaDbContext))]
-    [Migration("20230814083720_ShoppingItemMigration")]
-    partial class ShoppingItemMigration
+    [Migration("20230814202530_UpdateShoppingItemMigration")]
+    partial class UpdateShoppingItemMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,31 @@ namespace Prodavnica.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("Prodavnica.Api.Models.Oreder", b =>
+                {
+                    b.Property<Guid>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ByerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ShoppingItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("OrderId");
+
+                    b.ToTable("Orders");
+                });
 
             modelBuilder.Entity("Prodavnica.Api.Models.ShoppingItem", b =>
                 {
@@ -42,13 +67,21 @@ namespace Prodavnica.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("OrederOrderId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.Property<double>("Quantity")
                         .HasColumnType("float");
 
+                    b.Property<Guid>("SellerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("OrederOrderId");
 
                     b.ToTable("ShoppingItems");
                 });
@@ -90,12 +123,24 @@ namespace Prodavnica.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Verified")
+                    b.Property<bool?>("Verified")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Prodavnica.Api.Models.ShoppingItem", b =>
+                {
+                    b.HasOne("Prodavnica.Api.Models.Oreder", null)
+                        .WithMany("Items")
+                        .HasForeignKey("OrederOrderId");
+                });
+
+            modelBuilder.Entity("Prodavnica.Api.Models.Oreder", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

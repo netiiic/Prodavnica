@@ -120,7 +120,7 @@ namespace Prodavnica.Api.Repository
 
             foreach (ShoppingItem item in allItems)
             {
-                if (item.SellerId == sellerId)
+                if (item.SellerId == sellerId && item.Bought == false)
                 {
                     fromOneSeller.Add(item);
                 }
@@ -174,7 +174,37 @@ namespace Prodavnica.Api.Repository
         public List<ShoppingItemDto> GetAllItems()
         {
             List<ShoppingItem> shoppingItems = _dbContext.ShoppingItems.ToList();
-            return _mapper.Map<List<ShoppingItemDto>>(shoppingItems);
+            List<ShoppingItem> ret = new();
+            foreach (ShoppingItem item in shoppingItems)
+            {
+                if(item.Bought == false)
+                {
+                    ret.Add(item);
+                }
+            }
+            return _mapper.Map<List<ShoppingItemDto>>(ret);
+        }
+
+        public OrederDto MakeOrder(OrederDto order)
+        {
+            List<ShoppingItem> shoppingItemDB = _dbContext.ShoppingItems.ToList();
+            List<ShoppingItemDto> fromOrder = order.Items;
+            foreach(ShoppingItem item in shoppingItemDB)
+            {
+                foreach(ShoppingItemDto itemDB in fromOrder)
+                {
+                    if(item.Id == itemDB.Id)
+                    {
+                        item.Quantity -= itemDB.Quantity;
+                    }
+                }
+            }
+            //shoppingItemDB.Quantity = shoppingItemDB.Quantity - order.
+            Oreder newOrder = _mapper.Map<Oreder>(order);
+            _dbContext.Orders.Add(newOrder);
+            _dbContext.SaveChanges();
+
+            return _mapper.Map<OrederDto>(newOrder);
         }
     }
 }

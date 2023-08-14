@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Prodavnica.Api.Infrastructure;
 
@@ -11,9 +12,10 @@ using Prodavnica.Api.Infrastructure;
 namespace Prodavnica.Api.Migrations
 {
     [DbContext(typeof(ProdavnicaDbContext))]
-    partial class ProdavnicaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230814205513_FixMaybe")]
+    partial class FixMaybe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +23,6 @@ namespace Prodavnica.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("OrederShoppingItem", b =>
-                {
-                    b.Property<Guid>("ItemsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ItemsId", "OrderId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrederShoppingItem");
-                });
 
             modelBuilder.Entity("Prodavnica.Api.Models.Oreder", b =>
                 {
@@ -59,6 +46,8 @@ namespace Prodavnica.Api.Migrations
 
                     b.HasKey("OrderId");
 
+                    b.HasIndex("ShoppingItemId");
+
                     b.ToTable("Orders");
                 });
 
@@ -67,9 +56,6 @@ namespace Prodavnica.Api.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Bought")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -142,19 +128,20 @@ namespace Prodavnica.Api.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("OrederShoppingItem", b =>
+            modelBuilder.Entity("Prodavnica.Api.Models.Oreder", b =>
                 {
-                    b.HasOne("Prodavnica.Api.Models.ShoppingItem", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsId")
+                    b.HasOne("Prodavnica.Api.Models.ShoppingItem", "Item")
+                        .WithMany("Orders")
+                        .HasForeignKey("ShoppingItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Prodavnica.Api.Models.Oreder", null)
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("Prodavnica.Api.Models.ShoppingItem", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

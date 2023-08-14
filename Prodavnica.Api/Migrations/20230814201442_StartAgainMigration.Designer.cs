@@ -12,8 +12,8 @@ using Prodavnica.Api.Infrastructure;
 namespace Prodavnica.Api.Migrations
 {
     [DbContext(typeof(ProdavnicaDbContext))]
-    [Migration("20230814102004_UpdateUserMigration")]
-    partial class UpdateUserMigration
+    [Migration("20230814201442_StartAgainMigration")]
+    partial class StartAgainMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,31 @@ namespace Prodavnica.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("Prodavnica.Api.Models.Oreder", b =>
+                {
+                    b.Property<Guid>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ByerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ShoppingItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("OrderId");
+
+                    b.ToTable("Orders");
+                });
 
             modelBuilder.Entity("Prodavnica.Api.Models.ShoppingItem", b =>
                 {
@@ -42,6 +67,9 @@ namespace Prodavnica.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
@@ -52,6 +80,8 @@ namespace Prodavnica.Api.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.ToTable("ShoppingItems");
                 });
@@ -99,6 +129,22 @@ namespace Prodavnica.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Prodavnica.Api.Models.ShoppingItem", b =>
+                {
+                    b.HasOne("Prodavnica.Api.Models.Oreder", "Order")
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Prodavnica.Api.Models.Oreder", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

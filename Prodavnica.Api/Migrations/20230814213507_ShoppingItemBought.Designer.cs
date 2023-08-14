@@ -12,8 +12,8 @@ using Prodavnica.Api.Infrastructure;
 namespace Prodavnica.Api.Migrations
 {
     [DbContext(typeof(ProdavnicaDbContext))]
-    [Migration("20230814093612_ExpandShoppingItemMigration")]
-    partial class ExpandShoppingItemMigration
+    [Migration("20230814213507_ShoppingItemBought")]
+    partial class ShoppingItemBought
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,11 +24,54 @@ namespace Prodavnica.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("OrederShoppingItem", b =>
+                {
+                    b.Property<Guid>("ItemsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ItemsId", "OrderId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrederShoppingItem");
+                });
+
+            modelBuilder.Entity("Prodavnica.Api.Models.Oreder", b =>
+                {
+                    b.Property<Guid>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ByerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ShoppingItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("OrderId");
+
+                    b.ToTable("Orders");
+                });
+
             modelBuilder.Entity("Prodavnica.Api.Models.ShoppingItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Bought")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -93,12 +136,27 @@ namespace Prodavnica.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Verified")
+                    b.Property<bool?>("Verified")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("OrederShoppingItem", b =>
+                {
+                    b.HasOne("Prodavnica.Api.Models.ShoppingItem", null)
+                        .WithMany()
+                        .HasForeignKey("ItemsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Prodavnica.Api.Models.Oreder", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

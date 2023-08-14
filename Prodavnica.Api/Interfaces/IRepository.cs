@@ -96,5 +96,12 @@ namespace Prodavnica.Api.Interfaces
         /// </summary>
         /// <returns></returns>
         List<ShoppingItemDto> GetAllItems();
+
+        /// <summary>
+        ///     Make order
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        OrederDto MakeOrder(OrederDto order);
     }
 }

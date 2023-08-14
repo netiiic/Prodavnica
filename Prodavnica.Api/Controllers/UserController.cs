@@ -104,6 +104,13 @@ namespace Prodavnica.Api.Controllers
             return Ok(_repository.GetAllItems());
         }
 
+        [HttpPost]
+        [Route("MakeOrder")]
+        public IActionResult MakeOrder([FromBody] OrederDto orederDto)
+        {
+            return Ok(_repository.MakeOrder(orederDto));
+        }
+
         private string CreateToken(string userId, string username, string fullName)
         {
             List<Claim> claims = new()
