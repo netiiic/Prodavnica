@@ -17,5 +17,6 @@ namespace Prodavnica.Api.Infrastructure
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<ShoppingItem> ShoppingItems { get; set; }
     }
 }
