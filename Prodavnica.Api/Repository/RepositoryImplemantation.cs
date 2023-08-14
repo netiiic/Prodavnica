@@ -61,21 +61,20 @@ namespace Prodavnica.Api.Repository
             throw new NotImplementedException();
         }
 
-        public bool Verify(Guid id, bool verify)
+        public bool Verify(string username, bool verify)
         {
-            User user = _dbContext.Users.Find(id);
-            if (user != null)
+            List<User> users = _dbContext.Users.ToList();
+            foreach(User u in users)
             {
-                user.Verified = verify;
-                _dbContext.SaveChanges();
+                if(u.Username == username)
+                {
+                    u.Verified = verify;
+                    _dbContext.SaveChanges();
 
-                return true;
+                    return true;
+                }
             }
-            else
-            {
-                return false;
-            }
-
+            return false;
         }
 
         public bool UserExists(string username)
@@ -98,6 +97,84 @@ namespace Prodavnica.Api.Repository
         {
             User user = _dbContext.Users.Find(id);
             return (int)user.UserType;
+        }
+
+        public ShoppingItemDto AddNewItemToDB(ShoppingItemDto newItem)
+        {
+            ShoppingItem newShoppingItem = _mapper.Map<ShoppingItem>(newItem);
+            _dbContext.ShoppingItems.Add(newShoppingItem);
+            _dbContext.SaveChanges();
+
+            return _mapper.Map<ShoppingItemDto>(newShoppingItem);
+        }
+
+        public bool UserExistsByGuid(Guid id)
+        {
+            return _dbContext.Users.Any(c => c.Id == id);
+        }
+
+        public List<ShoppingItemDto> GetSellerItems(Guid sellerId)
+        {
+            List<ShoppingItem> allItems = _dbContext.ShoppingItems.ToList();
+            List<ShoppingItem> fromOneSeller = new();
+
+            foreach (ShoppingItem item in allItems)
+            {
+                if (item.SellerId == sellerId)
+                {
+                    fromOneSeller.Add(item);
+                }
+            }
+
+            return _mapper.Map<List<ShoppingItemDto>>(fromOneSeller);
+
+        }
+
+        public ShoppingItemDto UpdateItem(Guid id, ShoppingItemDto shoppingItem)
+        {
+            ShoppingItem item = _dbContext.ShoppingItems.Find(id);
+            item.Name = shoppingItem.Name;
+            item.Price = shoppingItem.Price;
+            item.Quantity = shoppingItem.Quantity;
+            item.Description = shoppingItem.Description;
+            item.Image = shoppingItem.Image;
+            item.SellerId = shoppingItem.SellerId;
+            _dbContext.SaveChanges();
+
+            return _mapper.Map<ShoppingItemDto>(item);
+        }
+
+        public bool DeleteItem(Guid id)
+        {
+            if (ItemExists(id))
+            {
+                _dbContext.ShoppingItems.Remove(_dbContext.ShoppingItems.Find(id));
+                _dbContext.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        private bool ItemExists(Guid id)
+        {
+            if(_dbContext.ShoppingItems.Find(id) != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public List<ShoppingItemDto> GetAllItems()
+        {
+            List<ShoppingItem> shoppingItems = _dbContext.ShoppingItems.ToList();
+            return _mapper.Map<List<ShoppingItemDto>>(shoppingItems);
         }
     }
 }

@@ -18,9 +18,9 @@ namespace Prodavnica.Api.Controllers
 
             [HttpPut]
             [Route("VerifyUser")]
-            public IActionResult VerifyUser(Guid id, bool verify)
+            public IActionResult VerifyUser(string username, bool verify)
             {
-                return Ok(_repository.Verify(id, verify));
+                return Ok(_repository.Verify(username, verify));
             }
 
             [HttpGet]

@@ -12,6 +12,6 @@
         public string Address { get; set; }
         public UserType UserType { get; set; }
         public string Image { get; set; }
-        public bool Verified { get; set; }
+        public bool? Verified { get; set; }
     }
 }

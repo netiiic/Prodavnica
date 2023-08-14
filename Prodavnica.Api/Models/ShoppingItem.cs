@@ -8,5 +8,6 @@
         public double Quantity { get; set; }
         public string Description { get; set; }
         public string Image { get; set; }
+        public Guid SellerId { get; set; }
     }
 }
