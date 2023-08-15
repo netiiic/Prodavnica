@@ -106,9 +106,16 @@ namespace Prodavnica.Api.Controllers
 
         [HttpPost]
         [Route("MakeOrder")]
-        public IActionResult MakeOrder([FromBody] OrederDto orederDto)
+        public IActionResult MakeOrder([FromQuery]List<Guid>shoppingItemToBeBought, [FromBody] OrederDto orederDto)
         {
-            return Ok(_repository.MakeOrder(orederDto));
+            return Ok(_repository.MakeOrder(orederDto, shoppingItemToBeBought));
+        }
+
+        [HttpGet]
+        [Route("AllFinalizedPurchaces")]
+        public IActionResult AllFinalizedPurchaces(Guid userId)
+        {
+            return Ok(_repository.UserFinalizedPurchases(userId));
         }
 
         private string CreateToken(string userId, string username, string fullName)

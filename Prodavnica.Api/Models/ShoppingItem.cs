@@ -2,6 +2,11 @@
 {
     public class ShoppingItem
     {
+        public ShoppingItem()
+        {
+            this.Order = new List<Oreder>();
+        }
+
         public Guid Id { get; set; }
         public string Name { get; set; }
         public double Price { get; set; }

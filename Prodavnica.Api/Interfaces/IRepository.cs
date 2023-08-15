@@ -55,11 +55,26 @@ namespace Prodavnica.Api.Interfaces
         /// <returns></returns>
         bool UserExistsByGuid(Guid id);
 
-
+        /// <summary>
+        ///     Return user by username
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         UserDto GetUser(string username);
 
+        /// <summary>
+        ///     Verify byer
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         bool AuthenticateUser(string username, string password);
 
+        /// <summary>
+        ///     Return type of user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         int GetUserType(Guid id);
 
         /// <summary>
@@ -102,6 +117,12 @@ namespace Prodavnica.Api.Interfaces
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        OrederDto MakeOrder(OrederDto order);
+        OrederDto MakeOrder(OrederDto order, List<Guid> shoppingItemToBeBought);
+
+        /// <summary>
+        ///     Finalizes orders made by user
+        /// </summary>
+        /// <returns></returns>
+        List<OrederDto> UserFinalizedPurchases(Guid userId);
     }
 }

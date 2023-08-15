@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Prodavnica.Api.Dto;
 using Prodavnica.Api.Infrastructure;
 using Prodavnica.Api.Interfaces;
@@ -185,9 +186,9 @@ namespace Prodavnica.Api.Repository
             return _mapper.Map<List<ShoppingItemDto>>(ret);
         }
 
-        public OrederDto MakeOrder(OrederDto order)
+        public OrederDto MakeOrder(OrederDto order, List<Guid> shoppingItemToBeBought)
         {
-            ReduceQuantityOfItem(order);
+            ReduceQuantityOfItem(order, shoppingItemToBeBought);
             Oreder newOrder = _mapper.Map<Oreder>(order);
             _dbContext.Orders.Add(newOrder);
             _dbContext.SaveChanges();
@@ -195,20 +196,51 @@ namespace Prodavnica.Api.Repository
             return _mapper.Map<OrederDto>(newOrder);
         }
 
-        private void ReduceQuantityOfItem(OrederDto order)
+        //ne radi kako treba
+        private void ReduceQuantityOfItem(OrederDto order, List<Guid> shoppingItemToBeBought)
         {
             List<ShoppingItem> shoppingItemDB = _dbContext.ShoppingItems.ToList();
             List<ShoppingItemDto> fromOrder = order.Items;
-            foreach (ShoppingItem item in shoppingItemDB)
+
+            foreach (ShoppingItem itemDB in shoppingItemDB)
             {
-                foreach (ShoppingItemDto itemDB in fromOrder)
+                foreach (ShoppingItemDto itemFO in fromOrder)
                 {
-                    if (item.Id == order.ShoppingItemId)
+                    foreach (Guid currentItemId in shoppingItemToBeBought)
                     {
-                        item.Quantity -= itemDB.Quantity;
+                        if (itemDB.Id == currentItemId)
+                        {
+                            itemDB.Quantity -= itemFO.Quantity;
+
+                        }
                     }
                 }
             }
+        }
+
+        public List<OrederDto> UserFinalizedPurchases(Guid userId)
+        {
+            List<Oreder> returnOrders = new();
+            List<Oreder> ordersFromDB = _dbContext.Orders.ToList();
+            List<ShoppingItem> itemsFromDB = _dbContext.ShoppingItems.ToList();
+            List<ShoppingItem> itemsInOrder = new();
+            foreach(Oreder order in ordersFromDB)
+            {
+                if(order.ByerId == userId && order.Finalized == true)
+                {
+                    Guid tmp = order.Id;
+                    itemsInOrder = _dbContext.Orders
+                                    .Where(g => g.Id == tmp)
+                                    .SelectMany(g => g.Items)
+                                    .ToList();
+
+                    order.Items = itemsInOrder;
+                    returnOrders.Add(order);
+                }
+            }
+
+
+            return _mapper.Map<List<OrederDto>>(returnOrders);
         }
     }
 }
