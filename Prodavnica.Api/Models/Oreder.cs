@@ -8,6 +8,7 @@
         public string Comment { get; set; }
         public string Address { get; set; }
         public List<ShoppingItem> Items { get; set; }
+        public bool Finalized { get; set; }
 
     }
 }

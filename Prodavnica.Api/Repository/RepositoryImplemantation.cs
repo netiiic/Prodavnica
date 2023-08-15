@@ -187,24 +187,28 @@ namespace Prodavnica.Api.Repository
 
         public OrederDto MakeOrder(OrederDto order)
         {
-            List<ShoppingItem> shoppingItemDB = _dbContext.ShoppingItems.ToList();
-            List<ShoppingItemDto> fromOrder = order.Items;
-            foreach(ShoppingItem item in shoppingItemDB)
-            {
-                foreach(ShoppingItemDto itemDB in fromOrder)
-                {
-                    if(item.Id == itemDB.Id)
-                    {
-                        item.Quantity -= itemDB.Quantity;
-                    }
-                }
-            }
-            //shoppingItemDB.Quantity = shoppingItemDB.Quantity - order.
+            ReduceQuantityOfItem(order);
             Oreder newOrder = _mapper.Map<Oreder>(order);
             _dbContext.Orders.Add(newOrder);
             _dbContext.SaveChanges();
 
             return _mapper.Map<OrederDto>(newOrder);
+        }
+
+        private void ReduceQuantityOfItem(OrederDto order)
+        {
+            List<ShoppingItem> shoppingItemDB = _dbContext.ShoppingItems.ToList();
+            List<ShoppingItemDto> fromOrder = order.Items;
+            foreach (ShoppingItem item in shoppingItemDB)
+            {
+                foreach (ShoppingItemDto itemDB in fromOrder)
+                {
+                    if (item.Id == order.ShoppingItemId)
+                    {
+                        item.Quantity -= itemDB.Quantity;
+                    }
+                }
+            }
         }
     }
 }

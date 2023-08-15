@@ -10,5 +10,6 @@ namespace Prodavnica.Api.Dto
         public string Comment { get; set; }
         public string Address { get; set; }
         public List<ShoppingItemDto> Items { get; set; }
+        public bool Finalized { get; set; }
     }
 }
