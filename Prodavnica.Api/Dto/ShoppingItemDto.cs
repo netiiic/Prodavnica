@@ -10,5 +10,7 @@
         public string Image { get; set; }
         public Guid SellerId { get; set; }
         public bool Bought { get; set; }
+        public bool Procesed { get; set; }
+        public Guid BoughtId { get; set; }
     }
 }

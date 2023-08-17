@@ -30,6 +30,13 @@ namespace Prodavnica.Api.Controllers
                 return Ok(_repository.GetAllUnverified());
             }
 
+            [HttpGet]
+            [Route("GetAllOrders")]
+            public IActionResult GetAllOrders()
+            {
+                return Ok(_repository.GetAllOrders());
+            }
+
         }
     }
 }

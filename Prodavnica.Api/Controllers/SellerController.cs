@@ -46,5 +46,12 @@ namespace Prodavnica.Api.Controllers
         {
             return Ok(_repository.DeleteItem(id));
         }
+
+        [HttpGet]
+        [Route("GetMyOrders")]
+        public IActionResult GetMyOrders(Guid sellerId)
+        {
+            return Ok(_repository.GetSellerOrders(sellerId));
+        }
     }
 }

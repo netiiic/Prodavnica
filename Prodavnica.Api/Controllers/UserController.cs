@@ -37,10 +37,10 @@ namespace Prodavnica.Api.Controllers
         [HttpPut(Name = "ChangeProfile")]
         public IActionResult ChangeProfile(Guid id, [FromBody] UserDto userDto)
         {
-            if (_repository.UserExists(userDto.Username))
-            {
-                return Unauthorized("Username taken.");
-            }
+            //if (_repository.UserExists(userDto.Username))
+            //{
+            //    return Unauthorized("Username taken.");
+            //}
             userDto.Password = EncodePasswordToBase64(userDto.Password);
             UserDto user = _repository.ChangeProfile(id, userDto);
             user.Password = DecodeFrom64(user.Password);
@@ -106,9 +106,9 @@ namespace Prodavnica.Api.Controllers
 
         [HttpPost]
         [Route("MakeOrder")]
-        public IActionResult MakeOrder([FromQuery]List<Guid>shoppingItemToBeBought, [FromBody] OrederDto orederDto)
+        public IActionResult MakeOrder([FromBody] OrederDto orederDto)
         {
-            return Ok(_repository.MakeOrder(orederDto, shoppingItemToBeBought));
+            return Ok(_repository.MakeOrder(orederDto));
         }
 
         [HttpGet]

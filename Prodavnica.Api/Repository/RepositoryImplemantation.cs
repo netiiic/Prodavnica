@@ -178,7 +178,7 @@ namespace Prodavnica.Api.Repository
             List<ShoppingItem> ret = new();
             foreach (ShoppingItem item in shoppingItems)
             {
-                if(item.Bought == false)
+                if(item.Bought == false && item.Quantity > 0)
                 {
                     ret.Add(item);
                 }
@@ -186,9 +186,9 @@ namespace Prodavnica.Api.Repository
             return _mapper.Map<List<ShoppingItemDto>>(ret);
         }
 
-        public OrederDto MakeOrder(OrederDto order, List<Guid> shoppingItemToBeBought)
+        public OrederDto MakeOrder(OrederDto order)
         {
-            ReduceQuantityOfItem(order, shoppingItemToBeBought);
+            ReduceQuantityOfItem(order);
             Oreder newOrder = _mapper.Map<Oreder>(order);
             _dbContext.Orders.Add(newOrder);
             _dbContext.SaveChanges();
@@ -196,27 +196,34 @@ namespace Prodavnica.Api.Repository
             return _mapper.Map<OrederDto>(newOrder);
         }
 
+
+
         //ne radi kako treba
-        private void ReduceQuantityOfItem(OrederDto order, List<Guid> shoppingItemToBeBought)
+        private void ReduceQuantityOfItem(OrederDto order)
         {
             List<ShoppingItem> shoppingItemDB = _dbContext.ShoppingItems.ToList();
             List<ShoppingItemDto> fromOrder = order.Items;
-
             foreach (ShoppingItem itemDB in shoppingItemDB)
             {
-                foreach (ShoppingItemDto itemFO in fromOrder)
+                if (itemDB.Bought == false)
                 {
-                    foreach (Guid currentItemId in shoppingItemToBeBought)
+                    foreach (ShoppingItemDto itemFO in fromOrder)
                     {
-                        if (itemDB.Id == currentItemId)
+                        if (itemFO.Procesed == false)
                         {
-                            itemDB.Quantity -= itemFO.Quantity;
-
+                            if (itemDB.Id == itemFO.BoughtId)
+                            {
+                                itemDB.Quantity -= itemFO.Quantity;
+                                itemFO.Procesed = true;
+                            }
                         }
                     }
+
                 }
             }
         }
+
+
 
         public List<OrederDto> UserFinalizedPurchases(Guid userId)
         {
@@ -239,8 +246,55 @@ namespace Prodavnica.Api.Repository
                 }
             }
 
-
             return _mapper.Map<List<OrederDto>>(returnOrders);
         }
+
+        public List<OrederDto> GetAllOrders()
+        {
+            var returnOrders = new List<OrederDto>();
+
+            var ordersFromDB = _dbContext.Orders.Include(o => o.Items).ToList();
+
+            foreach (var order in ordersFromDB)
+            {
+                var buyer = _dbContext.Users.FirstOrDefault(u => u.Id == order.ByerId);
+                if (buyer != null)
+                {
+                    var orderDto = _mapper.Map<OrederDto>(order);
+                    orderDto.ByerFullName = buyer.FullName;
+                    returnOrders.Add(orderDto);
+                }
+            }
+
+            return returnOrders;
+        }
+
+
+        public List<OrederDto> GetSellerOrders(Guid sellerID)
+        {
+            var returnOrders = new List<OrederDto>();
+
+            var ordersFromDB = _dbContext.Orders.Include(o => o.Items)
+                                               .Where(o => o.Items.Any(item => item.SellerId == sellerID))
+                                               .ToList();
+
+            foreach (var order in ordersFromDB)
+            {
+                var buyer = _dbContext.Users.FirstOrDefault(u => u.Id == order.ByerId);
+                if (buyer != null)
+                {
+                    var sellerItemsInOrder = order.Items.Where(item => item.SellerId == sellerID).ToList();
+                    var orderDto = _mapper.Map<OrederDto>(order);
+                    orderDto.ByerFullName = buyer.FullName;
+                    orderDto.Items = _mapper.Map<List<ShoppingItemDto>>(sellerItemsInOrder);
+                    returnOrders.Add(orderDto);
+                }
+            }
+
+            return returnOrders;
+        }
+
+
+
     }
 }

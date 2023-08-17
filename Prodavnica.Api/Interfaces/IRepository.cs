@@ -117,12 +117,26 @@ namespace Prodavnica.Api.Interfaces
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        OrederDto MakeOrder(OrederDto order, List<Guid> shoppingItemToBeBought);
+        OrederDto MakeOrder(OrederDto order);
 
         /// <summary>
         ///     Finalizes orders made by user
         /// </summary>
         /// <returns></returns>
         List<OrederDto> UserFinalizedPurchases(Guid userId);
+
+        /// <summary>
+        ///     All orders
+        /// </summary>
+        /// <returns></returns>
+        List<OrederDto> GetAllOrders();
+
+
+        /// <summary>
+        ///     Get all orders that contain seller id
+        /// </summary>
+        /// <param name="sellerID"></param>
+        /// <returns></returns>
+        List<OrederDto> GetSellerOrders(Guid sellerID);
     }
 }
