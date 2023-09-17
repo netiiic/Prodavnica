@@ -9,32 +9,32 @@ namespace Prodavnica.Api.Controllers
         [ApiController]
         public class AdminController : ControllerBase
         {
-            private readonly IRepository _repository;
+            private readonly IAdminService _service;
 
-            public AdminController(IRepository repository)
+            public AdminController(IAdminService service)
             {
-                _repository = repository;
+                _service = service;
             }
 
             [HttpPut]
             [Route("VerifyUser")]
             public IActionResult VerifyUser(string username, bool verify)
             {
-                return Ok(_repository.Verify(username, verify));
+                return Ok(_service.Verify(username, verify));
             }
 
             [HttpGet]
             [Route("GetAllUnverified")]
             public IActionResult GetAllUnverified()
             {
-                return Ok(_repository.GetAllUnverified());
+                return Ok(_service.GetAllUnverified());
             }
 
             [HttpGet]
             [Route("GetAllOrders")]
             public IActionResult GetAllOrders()
             {
-                return Ok(_repository.GetAllOrders());
+                return Ok(_service.GetAllOrders());
             }
 
         }

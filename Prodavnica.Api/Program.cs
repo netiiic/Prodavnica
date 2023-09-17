@@ -4,6 +4,7 @@ using Prodavnica.Api.Infrastructure;
 using Prodavnica.Api.Interfaces;
 using Prodavnica.Api.Mapping;
 using Prodavnica.Api.Repository;
+using Prodavnica.Api.Services;
 
 namespace Prodavnica.Api
 {
@@ -35,6 +36,9 @@ namespace Prodavnica.Api
 
             // SERVICES
             builder.Services.AddScoped<IRepository, RepositoryImplemantation>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<ISellerService, SellerService>();
+            //builder.Services.AddScoped<IUserService, UserService>();
 
             var app = builder.Build();
 

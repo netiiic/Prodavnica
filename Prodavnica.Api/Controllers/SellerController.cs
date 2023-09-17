@@ -7,51 +7,65 @@ namespace Prodavnica.Api.Controllers
     [Route("api/seller")]
     public class SellerController : ControllerBase
     {
-        private readonly IRepository _repository;
+        private readonly ISellerService _service;
 
-        public SellerController(IRepository repository)
+        public SellerController(ISellerService service)
         {
-            _repository = repository;
+            _service = service;
         }
 
         [HttpPost]
         [Route("AddNewItem")]
         public IActionResult AddNewItem([FromBody] ShoppingItemDto shoppingItemDto)
         {
-            return Ok(_repository.AddNewItemToDB(shoppingItemDto));
+            return Ok(_service.AddNewItemToDB(shoppingItemDto));
         }
 
         [HttpPut]
         [Route("GetAllMyItems")]
         public IActionResult GetAllMyItems(Guid sellerId)
         {
-            if(!_repository.UserExistsByGuid(sellerId))
+            List<ShoppingItemDto> ret = new();
+            ret = _service.GetAllMyItems(sellerId);
+            if (ret == null)
             {
-                return BadRequest("You don't exist");
+                return BadRequest("You don't exist.");
             }
-            return Ok(_repository.GetSellerItems(sellerId));
+            else
+            {
+                return Ok(ret);
+            }
         }
 
         [HttpPut]
         [Route("UpdateItem")]
         public IActionResult UpdateItem(Guid id, [FromBody] ShoppingItemDto shoppingItemDto)
         {
-            ShoppingItemDto changedItem = _repository.UpdateItem(id, shoppingItemDto);
-            return Ok(changedItem);
+            return Ok(_service.UpdateItem(id, shoppingItemDto));
         }
 
         [HttpPut]
         [Route("DeleteItem")]
         public IActionResult DeleteItem(Guid id)
         {
-            return Ok(_repository.DeleteItem(id));
+            return Ok(_service.DeleteItem(id));
         }
 
         [HttpGet]
         [Route("GetMyOrders")]
         public IActionResult GetMyOrders(Guid sellerId)
         {
-            return Ok(_repository.GetSellerOrders(sellerId));
+            List<OrederDto> ret = new();
+            ret = _service.GetSellerOrders(sellerId);
+            if(ret == null)
+            {
+                return BadRequest("You don't exist.");
+            }
+            else 
+            {
+                return Ok(ret);
+            }
+            
         }
     }
 }
