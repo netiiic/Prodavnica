@@ -46,7 +46,6 @@ namespace Prodavnica.Api.Services
             }
             catch (Exception ex)
             {
-                //Do nothing :(
             }
             return _repository.Verify(username, verify);
         }
