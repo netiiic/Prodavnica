@@ -30,6 +30,8 @@ namespace Prodavnica.Api.Controllers
                 return Unauthorized("Username taken.");
             }
             userDto.Password = EncodePasswordToBase64(userDto.Password);
+            userDto.Id = new Guid();
+
 
             return Ok(_repository.RegisterUser(userDto));
         }

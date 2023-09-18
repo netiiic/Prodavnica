@@ -12,8 +12,8 @@ using Prodavnica.Api.Infrastructure;
 namespace Prodavnica.Api.Migrations
 {
     [DbContext(typeof(ProdavnicaDbContext))]
-    [Migration("20230815134309_RenameinOreder")]
-    partial class RenameinOreder
+    [Migration("20230918083304_FixAgain")]
+    partial class FixAgain
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
