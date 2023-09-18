@@ -49,6 +49,13 @@ namespace Prodavnica.Api.Interfaces
         bool UserExists(string username);
 
         /// <summary>
+        ///     Check if user exists in DB
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        bool UserExistsEmail(string email);
+
+        /// <summary>
         ///     Check if user exists in DB by ID
         /// </summary>
         /// <param name="id"></param>
@@ -61,6 +68,13 @@ namespace Prodavnica.Api.Interfaces
         /// <param name="username"></param>
         /// <returns></returns>
         UserDto GetUser(string username);
+
+        /// <summary>
+        ///     Return user by username
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        UserDto GetUserEmail(string email);
 
         /// <summary>
         ///     Verify byer

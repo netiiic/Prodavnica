@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Prodavnica.Api.Dto;
 using Prodavnica.Api.Interfaces;
 
 namespace Prodavnica.Api.Controllers

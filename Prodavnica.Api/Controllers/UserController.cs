@@ -15,23 +15,23 @@ namespace Prodavnica.Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IRepository _repository;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IRepository repository)
+        public UserController(IRepository repository, IConfiguration configuration)
         {
             _repository = repository;
+            _configuration = configuration;
         }
 
         [HttpPost]
         [Route("RegisterUser")]
         public IActionResult RegisterUser([FromBody] UserDto userDto)
         {
-            if (_repository.UserExists(userDto.Username))
+            if (_repository.UserExistsEmail(userDto.Email))
             {
-                return Unauthorized("Username taken.");
+                return Unauthorized("Email taken.");
             }
             userDto.Password = EncodePasswordToBase64(userDto.Password);
-            userDto.Id = new Guid();
-
 
             return Ok(_repository.RegisterUser(userDto));
         }
@@ -39,10 +39,6 @@ namespace Prodavnica.Api.Controllers
         [HttpPut(Name = "ChangeProfile")]
         public IActionResult ChangeProfile(Guid id, [FromBody] UserDto userDto)
         {
-            //if (_repository.UserExists(userDto.Username))
-            //{
-            //    return Unauthorized("Username taken.");
-            //}
             userDto.Password = EncodePasswordToBase64(userDto.Password);
             UserDto user = _repository.ChangeProfile(id, userDto);
             user.Password = DecodeFrom64(user.Password);
@@ -55,7 +51,7 @@ namespace Prodavnica.Api.Controllers
         {
             if(!_repository.UserExists(username))
             {
-                return Unauthorized("Non exist");
+                return Unauthorized("Doesn't exist");
             }
             UserDto user = _repository.GetUser(username);
             user.Password = DecodeFrom64(user.Password);
@@ -66,12 +62,12 @@ namespace Prodavnica.Api.Controllers
         [Route("Login")]
         public IActionResult Login([FromBody] LoginModel loginModel)
         {
-            if (!_repository.UserExists(loginModel.Username))
+            if (!_repository.UserExistsEmail(loginModel.Email))
             {
-                return Unauthorized("Username or password incorrect.");
+                return Unauthorized("Email or password incorrect.");
             }
 
-            UserDto user = _repository.GetUser(loginModel.Username);
+            UserDto user = _repository.GetUserEmail(loginModel.Email);
 
             if (user.UserType == Dto.UserType.Seller && user.Verified == false)
             {
@@ -129,12 +125,12 @@ namespace Prodavnica.Api.Controllers
                 new Claim(CustomClaimTypes.FullName, fullName)
             };
 
-            byte[] key = Encoding.ASCII.GetBytes("sdaspvsjmbvs9832kaedfgASF78979SDGVSDShsgsg");
+            byte[] key = Encoding.ASCII.GetBytes(_configuration["JWT:Key"]);
 
             SecurityTokenDescriptor tokenDescriptor = new()
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
