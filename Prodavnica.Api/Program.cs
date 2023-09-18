@@ -38,7 +38,7 @@ namespace Prodavnica.Api
             builder.Services.AddScoped<IRepository, RepositoryImplemantation>();
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<ISellerService, SellerService>();
-            //builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             var app = builder.Build();
 

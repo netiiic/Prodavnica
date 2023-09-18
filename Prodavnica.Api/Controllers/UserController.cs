@@ -14,34 +14,41 @@ namespace Prodavnica.Api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IRepository _repository;
-        private readonly IConfiguration _configuration;
+        private readonly IUserService _service;
 
-        public UserController(IRepository repository, IConfiguration configuration)
+        public UserController(IUserService service)
         {
-            _repository = repository;
-            _configuration = configuration;
+            _service = service;
         }
 
         [HttpPost]
         [Route("RegisterUser")]
         public IActionResult RegisterUser([FromBody] UserDto userDto)
         {
-            if (_repository.UserExistsEmail(userDto.Email))
+            UserDto user;
+            try
             {
-                return Unauthorized("Email taken.");
+                user = _service.RegisterUser(userDto);
             }
-            userDto.Password = EncodePasswordToBase64(userDto.Password);
-
-            return Ok(_repository.RegisterUser(userDto));
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            return Ok(user);
         }
 
         [HttpPut(Name = "ChangeProfile")]
         public IActionResult ChangeProfile(Guid id, [FromBody] UserDto userDto)
         {
-            userDto.Password = EncodePasswordToBase64(userDto.Password);
-            UserDto user = _repository.ChangeProfile(id, userDto);
-            user.Password = DecodeFrom64(user.Password);
+            UserDto user;
+            try
+            {
+                user = _service.ChangeProfile(id, userDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
             return Ok(user);
         }
 
@@ -49,12 +56,15 @@ namespace Prodavnica.Api.Controllers
         [Route("GetUser")]
         public IActionResult GetUser([FromQuery] string username)
         {
-            if(!_repository.UserExists(username))
+            UserDto user;
+            try
             {
-                return Unauthorized("Doesn't exist");
+                user = _service.GetUser(username);
             }
-            UserDto user = _repository.GetUser(username);
-            user.Password = DecodeFrom64(user.Password);
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
             return Ok(user);
         }
 
@@ -62,28 +72,15 @@ namespace Prodavnica.Api.Controllers
         [Route("Login")]
         public IActionResult Login([FromBody] LoginModel loginModel)
         {
-            if (!_repository.UserExistsEmail(loginModel.Email))
+            string token = "";
+            try
             {
-                return Unauthorized("Email or password incorrect.");
+                token = _service.Login(loginModel);
             }
-
-            UserDto user = _repository.GetUserEmail(loginModel.Email);
-
-            if (user.UserType == Dto.UserType.Seller && user.Verified == false)
+            catch (Exception ex)
             {
-                return Unauthorized("Admin has not verifed you.");
+                return BadRequest(new { Message = ex.Message });
             }
-            string decPWD = string.Empty;
-
-            decPWD = DecodeFrom64(user.Password);
-
-
-            if (decPWD != loginModel.Password)
-            {
-                return Unauthorized("Username or password incorect.");
-            }
-
-            string token = CreateToken(user.Id.ToString(), user.Username, user.FullName);
 
             return Ok(new { Token = token });
         }
@@ -92,80 +89,28 @@ namespace Prodavnica.Api.Controllers
         [Route("GetType")]
         public IActionResult GetUserType(Guid id)
         {
-            return Ok(_repository.GetUserType(id));
+            return Ok(_service.GetUserType(id));
         }
 
         [HttpGet]
         [Route("GetAllItems")]
         public IActionResult GetAllItems()
         {
-            return Ok(_repository.GetAllItems());
+            return Ok(_service.GetAllItems());
         }
 
         [HttpPost]
         [Route("MakeOrder")]
         public IActionResult MakeOrder([FromBody] OrederDto orederDto)
         {
-            return Ok(_repository.MakeOrder(orederDto));
+            return Ok(_service.MakeOrder(orederDto));
         }
 
         [HttpGet]
         [Route("AllFinalizedPurchaces")]
         public IActionResult AllFinalizedPurchaces(Guid userId)
         {
-            return Ok(_repository.UserFinalizedPurchases(userId));
-        }
-
-        private string CreateToken(string userId, string username, string fullName)
-        {
-            List<Claim> claims = new()
-            {
-                new Claim(CustomClaimTypes.UserId, userId),
-                new Claim(CustomClaimTypes.Username, username),
-                new Claim(CustomClaimTypes.FullName, fullName)
-            };
-
-            byte[] key = Encoding.ASCII.GetBytes(_configuration["JWT:Key"]);
-
-            SecurityTokenDescriptor tokenDescriptor = new()
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            JwtSecurityTokenHandler tokenHandler = new();
-            SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(securityToken);
-        }
-
-        private string EncodePasswordToBase64(string password)
-        {
-            try
-            {
-                byte[] encData_byte = new byte[password.Length];
-                encData_byte = System.Text.Encoding.UTF8.GetBytes(password);
-                string encodedData = Convert.ToBase64String(encData_byte);
-                return encodedData;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error in base64Encode" + ex.Message);
-            }
-        }
-
-        private string DecodeFrom64(string encodedData)
-        {
-            System.Text.UTF8Encoding encoder = new System.Text.UTF8Encoding();
-            System.Text.Decoder utf8Decode = encoder.GetDecoder();
-            byte[] todecode_byte = Convert.FromBase64String(encodedData);
-            int charCount = utf8Decode.GetCharCount(todecode_byte, 0, todecode_byte.Length);
-            char[] decoded_char = new char[charCount];
-            utf8Decode.GetChars(todecode_byte, 0, todecode_byte.Length, decoded_char, 0);
-            string result = new String(decoded_char);
-            return result;
+            return Ok(_service.AllFinalizedPurchases(userId));
         }
     }
 }

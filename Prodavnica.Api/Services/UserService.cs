@@ -1,13 +1,15 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Prodavnica.Api.Constants;
+using Prodavnica.Api.Dto;
 using Prodavnica.Api.Interfaces;
+using Prodavnica.Api.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace Prodavnica.Api.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly IRepository _repository;
         private readonly IConfiguration _configuration;
@@ -16,6 +18,85 @@ namespace Prodavnica.Api.Services
         {
             _repository = repository;
             _configuration = configuration;
+        }
+
+
+        public UserDto RegisterUser(UserDto userDto)
+        {
+            if (_repository.UserExistsEmail(userDto.Email))
+            {
+                throw new Exception("Email taken.");
+            }
+            userDto.Password = EncodePasswordToBase64(userDto.Password);
+
+            return _repository.RegisterUser(userDto);
+        }
+
+        public UserDto ChangeProfile(Guid id, UserDto userDto)
+        {
+            userDto.Password = EncodePasswordToBase64(userDto.Password);
+            UserDto user = _repository.ChangeProfile(id, userDto);
+            user.Password = DecodeFrom64(user.Password);
+            return user;
+        }
+
+        public UserDto GetUser(string username)
+        {
+            if (!_repository.UserExists(username))
+            {
+                throw new Exception("Doesn't exist");
+            }
+            UserDto user = _repository.GetUser(username);
+            user.Password = DecodeFrom64(user.Password);
+            return user;
+        }
+
+        public string Login(LoginModel loginModel)
+        {
+            if (!_repository.UserExistsEmail(loginModel.Email))
+            {
+                throw new Exception("Email or password incorrect.");
+            }
+
+            UserDto user = _repository.GetUserEmail(loginModel.Email);
+
+            if (user.UserType == Dto.UserType.Seller && user.Verified == false)
+            {
+                throw new Exception("Admin has not verifed you.");
+            }
+            string decPWD = string.Empty;
+
+            decPWD = DecodeFrom64(user.Password);
+
+
+            if (decPWD != loginModel.Password)
+            {
+                throw new Exception("Username or password incorect.");
+            }
+
+            string token = CreateToken(user.Id.ToString(), user.Username, user.FullName);
+
+            return  token;
+        }
+
+        public int GetUserType(Guid id)
+        {
+            return _repository.GetUserType(id);
+        }
+
+        public List<ShoppingItemDto> GetAllItems()
+        {
+            return _repository.GetAllItems();
+        }
+
+        public OrederDto MakeOrder(OrederDto order)
+        {
+            return _repository.MakeOrder(order);
+        }
+
+        public List<OrederDto> AllFinalizedPurchases(Guid userId)
+        {
+            return _repository.UserFinalizedPurchases(userId);
         }
         private string CreateToken(string userId, string username, string fullName)
         {
@@ -68,5 +149,6 @@ namespace Prodavnica.Api.Services
             string result = new String(decoded_char);
             return result;
         }
+
     }
 }
